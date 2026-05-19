@@ -22,7 +22,7 @@ const blacklist = new Set([
 
 function isPopupWindow(window) {
     // If the window is blacklisted, don't animate it.
-    if (blacklist.has(window.windowClass)) {
+    if (!window.windowClass || blacklist.has(window.windowClass)) {
         return false;
     }
 

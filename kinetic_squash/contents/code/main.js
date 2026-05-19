@@ -33,7 +33,7 @@ class SquashEffect {
         // If the window doesn't have an icon in the task manager,
         // don't animate it.
         const iconRect = window.iconGeometry;
-        if (iconRect.width === 0 || iconRect.height === 0) {
+        if (!iconRect || iconRect.width === 0 || iconRect.height === 0) {
             return;
         }
 
@@ -47,9 +47,13 @@ class SquashEffect {
         }
 
         const sourceRect = window.geometry;
+        // Validate geometry to prevent division by zero
+        if (!sourceRect || sourceRect.width === 0 || sourceRect.height === 0) {
+            return;
+        }
         const targetRect = interpolateRect(sourceRect, window.iconGeometry, 0.15);
-        const sclx = targetRect.width / window.geometry.width;
-        const scly = targetRect.height / window.geometry.height;
+        const sclx = targetRect.width / sourceRect.width;
+        const scly = targetRect.height / sourceRect.height;
         const scl = (sclx < scly) ? sclx : scly;
 
         window.minimizeAnimation = animate({
@@ -92,7 +96,7 @@ class SquashEffect {
         // If the window doesn't have an icon in the task manager,
         // don't animate it.
         const iconRect = window.iconGeometry;
-        if (iconRect.width === 0 || iconRect.height === 0) {
+        if (!iconRect || iconRect.width === 0 || iconRect.height === 0) {
             return;
         }
 
@@ -106,10 +110,14 @@ class SquashEffect {
         }
 
         const sourceRect = window.geometry;
+        // Validate geometry to prevent division by zero
+        if (!sourceRect || sourceRect.width === 0 || sourceRect.height === 0) {
+            return;
+        }
         const snappyness = 0.4;
         const targetRect = interpolateRect(sourceRect, window.iconGeometry, snappyness);
-        const sclx = targetRect.width / window.geometry.width;
-        const scly = targetRect.height / window.geometry.height;
+        const sclx = targetRect.width / sourceRect.width;
+        const scly = targetRect.height / sourceRect.height;
         const scl = (sclx < scly) ? sclx : scly;
 
         window.unminimizeAnimation = animate({
