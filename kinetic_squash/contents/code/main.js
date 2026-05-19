@@ -9,27 +9,31 @@
 "use strict";
 
 function interpolateRect(src, tgt, t) {
-
-
-    var itp = {
+    return {
         x: (1 - t) * src.x + t * tgt.x,
         y: (1 - t) * src.y + t * tgt.y,
         width: (1 - t) * src.width + t * tgt.width,
         height: (1 - t) * src.height + t * tgt.height,
     };
-    return itp;
 }
 
-var squashEffect = {
-    slotWindowMinimized: function (window) {
+class SquashEffect {
+    constructor() {
+        effects.windowAdded.connect(this.slotWindowAdded.bind(this));
+        for (const window of effects.stackingOrder) {
+            this.slotWindowAdded(window);
+        }
+    }
+
+    slotWindowMinimized(window) {
         if (effects.hasActiveFullScreenEffect) {
             return;
         }
 
         // If the window doesn't have an icon in the task manager,
         // don't animate it.
-        var iconRect = window.iconGeometry;
-        if (iconRect.width == 0 || iconRect.height == 0) {
+        const iconRect = window.iconGeometry;
+        if (iconRect.width === 0 || iconRect.height === 0) {
             return;
         }
 
@@ -41,11 +45,12 @@ var squashEffect = {
         if (window.minimizeAnimation) {
             cancel(window.minimizeAnimation);
         }
-        var sourceRect = window.geometry;
-        var targetRect = interpolateRect(sourceRect, window.iconGeometry, 0.15);
-        var sclx = targetRect.width / window.geometry.width;
-        var scly = targetRect.height / window.geometry.height;
-        var scl = (sclx < scly) ? sclx : scly;
+
+        const sourceRect = window.geometry;
+        const targetRect = interpolateRect(sourceRect, window.iconGeometry, 0.15);
+        const sclx = targetRect.width / window.geometry.width;
+        const scly = targetRect.height / window.geometry.height;
+        const scl = (sclx < scly) ? sclx : scly;
 
         window.minimizeAnimation = animate({
             window: window,
@@ -59,7 +64,7 @@ var squashEffect = {
                 },
                 {
                     type: Effect.Opacity,
-                    from: 10/10,
+                    from: 1,
                     to: 0.2,
                     curve: QEasingCurve.Linear
                 },
@@ -77,16 +82,17 @@ var squashEffect = {
                 },
             ]
         });
-    },
-    slotWindowUnminimized: function (window) {
+    }
+
+    slotWindowUnminimized(window) {
         if (effects.hasActiveFullScreenEffect) {
             return;
         }
 
         // If the window doesn't have an icon in the task manager,
         // don't animate it.
-        var iconRect = window.iconGeometry;
-        if (iconRect.width == 0 || iconRect.height == 0) {
+        const iconRect = window.iconGeometry;
+        if (iconRect.width === 0 || iconRect.height === 0) {
             return;
         }
 
@@ -99,15 +105,12 @@ var squashEffect = {
             cancel(window.unminimizeAnimation);
         }
 
-        var windowRect = window.geometry;
-        var iconRect = window.iconGeometry;
-
-        var sourceRect = window.geometry;
-        var snappyness = 0.4;
-        var targetRect = interpolateRect(sourceRect, window.iconGeometry, snappyness);
-        var sclx = targetRect.width / window.geometry.width;
-        var scly = targetRect.height / window.geometry.height;
-        var scl = (sclx < scly) ? sclx : scly;
+        const sourceRect = window.geometry;
+        const snappyness = 0.4;
+        const targetRect = interpolateRect(sourceRect, window.iconGeometry, snappyness);
+        const sclx = targetRect.width / window.geometry.width;
+        const scly = targetRect.height / window.geometry.height;
+        const scl = (sclx < scly) ? sclx : scly;
 
         window.unminimizeAnimation = animate({
             window: window,
@@ -139,22 +142,17 @@ var squashEffect = {
                 }
             ]
         });
-    },
-    slotWindowAdded: function (window) {
+    }
+
+    slotWindowAdded(window) {
         window.minimizedChanged.connect(() => {
             if (window.minimized) {
-                squashEffect.slotWindowMinimized(window);
+                this.slotWindowMinimized(window);
             } else {
-                squashEffect.slotWindowUnminimized(window);
+                this.slotWindowUnminimized(window);
             }
         });
-    },
-    init: function () {
-        effects.windowAdded.connect(squashEffect.slotWindowAdded);
-        for (const window of effects.stackingOrder) {
-            squashEffect.slotWindowAdded(window);
-        }
     }
-};
+}
 
-squashEffect.init();
+new SquashEffect();

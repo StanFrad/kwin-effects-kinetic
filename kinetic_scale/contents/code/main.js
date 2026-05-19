@@ -9,7 +9,7 @@
 
 "use strict";
 
-const blacklist = [
+const blacklist = new Set([
     // The logout screen has to be animated only by the logout effect.
     "ksmserver ksmserver",
     "ksmserver-logout-greeter ksmserver-logout-greeter",
@@ -20,7 +20,7 @@ const blacklist = [
     // Spectacle needs to be blacklisted in order to stay out of its own screenshots.
     "spectacle spectacle", // x11
     "spectacle org.kde.spectacle", // wayland
-];
+]);
 
 class ScaleEffect {
     constructor() {
@@ -48,12 +48,12 @@ class ScaleEffect {
         // So, the only way to decide whether a window should be animated is
         // to use a heuristic: if a window has decoration, then it's most
         // likely a dialog or a settings window so we have to animate it.
-        if (window.windowClass == "plasmashell plasmashell"
-                || window.windowClass == "plasmashell org.kde.plasmashell") {
+        if (window.windowClass === "plasmashell plasmashell"
+                || window.windowClass === "plasmashell org.kde.plasmashell") {
             return window.hasDecoration;
         }
 
-        if (blacklist.indexOf(window.windowClass) != -1) {
+        if (blacklist.has(window.windowClass)) {
             return false;
         }
 

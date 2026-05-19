@@ -54,7 +54,7 @@ class MaximizeKineticEffect {
                 animations: [{
                     type: Effect.CrossFadePrevious,
                     to: 1.0,
-                    from: this.snappiness,
+                    from: this.snappyness,
                     curve: QEasingCurve.OutExpo
                 }]
             });
