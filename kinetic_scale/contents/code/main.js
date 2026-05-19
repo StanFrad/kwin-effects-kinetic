@@ -33,6 +33,11 @@ class ScaleEffect {
         this.loadConfig();
     }
 
+    // Constants for magic numbers
+    static get MIN_OPACITY() { return 1/12; }
+    static get MAX_SCALE() { return 1 - 0.1 / 10; }
+    static get MAX_OPACITY() { return 9/10; }
+
     loadConfig() {
         // const defaultDuration = 200;
         // const duration = effect.readConfig("Duration", defaultDuration) || defaultDuration;
@@ -42,6 +47,11 @@ class ScaleEffect {
     }
 
     static isScaleWindow(window) {
+        // Validate window object
+        if (!window) {
+            return false;
+        }
+        
         // We don't want to animate most of plasmashell's windows, yet, some
         // of them we want to, for example, Task Manager Settings window.
         // The problem is that all those window share single window class.
@@ -115,7 +125,7 @@ class ScaleEffect {
                 },
                 {
                     type: Effect.Opacity,
-                    from: 1/12,
+                    from: ScaleEffect.MIN_OPACITY,
                     curve: QEasingCurve.Linear,
                     duration: 184,
                 }
@@ -148,13 +158,13 @@ class ScaleEffect {
             animations: [
                 {
                     type: Effect.Scale,
-                    from: 1 - 0.1 / 10,
+                    from: ScaleEffect.MAX_SCALE,
                     to: 0.925,
                     curve: QEasingCurve.Linear
                 },
                 {
                     type: Effect.Opacity,
-                    from: 9/10,
+                    from: ScaleEffect.MAX_OPACITY,
                     to: 0.0,
                     curve: QEasingCurve.Linear
                 }

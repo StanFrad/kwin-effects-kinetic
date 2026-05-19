@@ -37,6 +37,11 @@ class MaximizeKineticEffect {
             return;
         }
 
+        // Validate geometry before storing
+        if (!window.geometry) {
+            console.error("kinetic_maximize: window.geometry is null/undefined");
+            return;
+        }
         window.oldGeometry = Object.assign({}, window.geometry);
 
         if (window.maximizeAnimation1) {
@@ -65,9 +70,23 @@ class MaximizeKineticEffect {
         if (!window.visible || !window.oldGeometry) {
             return;
         }
+        
+        // Validate current geometry
+        const newGeometry = window.geometry;
+        if (!newGeometry) {
+            console.error("kinetic_maximize: window.geometry is null/undefined in onWindowMaximizedStateChanged");
+            return;
+        }
+        
         window.setData(Effect.WindowForceBlurRole, true);
         const oldGeometry = window.oldGeometry;
-        const newGeometry = window.geometry;
+        
+        // Validate geometry values to prevent NaN/Infinity
+        if (oldGeometry.width === 0 || oldGeometry.height === 0 ||
+            newGeometry.width === 0 || newGeometry.height === 0) {
+            return;
+        }
+        
         window.maximizeAnimation1 = animate({
             window: window,
             duration: this.duration,
